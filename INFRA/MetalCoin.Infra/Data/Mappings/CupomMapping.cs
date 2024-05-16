@@ -27,7 +27,7 @@ namespace MetalCoin.Infra.Data.Mappings
                 .IsRequired();
 
             builder.Property(p => p.ValorDesconto)
-                .HasColumnType("decimal(18,2)")
+                .HasColumnType("decimal")
                 .IsRequired();
 
             builder.Property(p => p.TipoDesconto)
