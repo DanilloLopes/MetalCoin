@@ -19,7 +19,7 @@ namespace MetalCoin.Application.Services
         {
             _cupomRepository = repository;
         }
-        public async Task<CupomResponse> AtualizarCategoria(CupomAtualizarRequest cupom)
+        public async Task<CupomResponse> AtualizarCupom(CupomAtualizarRequest cupom)
         {
             
             
@@ -29,7 +29,7 @@ namespace MetalCoin.Application.Services
             throw new NotImplementedException();
         }
 
-        public async Task<CupomResponse> CadastrarCategoria(CupomCadastrarRequest cupom)
+        public async Task<CupomResponse> CadastrarCupom(CupomCadastrarRequest cupom)
         {
             var cupomExiste = await _cupomRepository.BuscarPorCodigo(cupom.Codigo);
 
@@ -67,8 +67,6 @@ namespace MetalCoin.Application.Services
 
             return response;
 
-
-            throw new NotImplementedException();
         }
 
         public async Task<bool> DeletarCategoria(Guid id)

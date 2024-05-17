@@ -12,11 +12,12 @@ namespace MetalCoin.Api.Controllers
     public class CupomControler : ControllerBase
     {
         private readonly ICupomRepository _cupomRepository;
+        private readonly ICupomService _cupomService;
 
-        public CupomControler(ICupomRepository cupomRepository)
+        public CupomControler(ICupomRepository cupomRepository, ICupomService cupomService)
         {
             _cupomRepository = cupomRepository;
-            
+            _cupomService = cupomService;
         }
 
         #region HTTP GET
@@ -40,13 +41,13 @@ namespace MetalCoin.Api.Controllers
 
         [HttpPost]
         [Route("cupons/cadastrar")]
-        public async Task<ActionResult> CadastrarCupom([FromBody] CupomCadastrarRequest categoria)
+        public async Task<ActionResult> CadastrarCupom([FromBody] CupomCadastrarRequest cupom)
         {
-            if (categoria == null) return BadRequest("Informe o nome da categoria");
+            if (cupom == null) return BadRequest("Informe os dados do cupom");
 
-            var response = await _categoriaService.CadastrarCategoria(categoria);
+            var response = await _cupomService.CadastrarCupom(cupom);
 
-            if (response == null) return BadRequest("Categoria já existe");
+            if (response == null) return BadRequest("Cupom já existe");
 
             return Created("cadastrar", response);
         }
