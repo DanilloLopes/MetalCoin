@@ -47,9 +47,24 @@ namespace MetalCoin.Api.Controllers
 
             var response = await _cupomService.CadastrarCupom(cupom);
 
-            if (response == null) return BadRequest("Cupom já existe");
+            if (response == null) return BadRequest("Erro nos dados!");
 
             return Created("cadastrar", response);
+        }
+
+        #endregion
+
+        #region HTTP POST
+
+        [HttpPut]
+        [Route("cupons/atualizar")]
+        public async Task<ActionResult> AtualizarCupom([FromBody] CupomAtualizarRequest cupom)
+        {
+            if (cupom == null) return BadRequest("Nenhum valor chegou na API");
+
+            var response = await _cupomService.AtualizarCupom(cupom);
+
+            return Ok(response);
         }
 
         #endregion

@@ -1,6 +1,7 @@
 ﻿using Metalcoin.Core.Domain;
 using Metalcoin.Core.Dtos.Request;
 using Metalcoin.Core.Dtos.Response;
+using Metalcoin.Core.Enums;
 using Metalcoin.Core.Interfaces.Repositories;
 using Metalcoin.Core.Interfaces.Services;
 using System;
@@ -21,12 +22,38 @@ namespace MetalCoin.Application.Services
         }
         public async Task<CupomResponse> AtualizarCupom(CupomAtualizarRequest cupom)
         {
+            var cupomDb = await _cupomRepository.ObterPorId(cupom.Id);
+
+            cupomDb.Codigo = cupom.Codigo;
+            cupomDb.Descricao = cupom.Descricao;
+            cupomDb.ValorDesconto = cupom.ValorDesconto;
+            cupomDb.TipoDesconto = cupom.TipoDesconto;
+            cupomDb.DataValidade = cupom.DataValidade;
+            cupomDb.QuantidadeLiberada = cupom.QuantidadeLiberada;
+            cupomDb.Status = cupom.Status;
+            cupomDb.DataAlteracao = DateTime.Now;
+
+            await _cupomRepository.Atualizar(cupomDb);
+
+            var response = new CupomResponse
+            {
+                Id = cupomDb.Id,
+                Codigo = cupomDb.Codigo,
+                Descricao = cupomDb.Descricao,
+                ValorDesconto = cupomDb.ValorDesconto,
+                TipoDesconto = cupomDb.TipoDesconto,
+                DataValidade = cupomDb.DataValidade,
+                QuantidadeLiberada = cupomDb.QuantidadeLiberada,
+                QuantidadeUsada = cupomDb.QuantidadeUsada,
+                Status = cupomDb.Status,
+                DataCadastro = cupomDb.DataCadastro,
+                DataAlteracao = cupomDb.DataAlteracao
+            };
+
+            return response;
             
             
             
-            
-            
-            throw new NotImplementedException();
         }
 
         public async Task<CupomResponse> CadastrarCupom(CupomCadastrarRequest cupom)
@@ -34,6 +61,7 @@ namespace MetalCoin.Application.Services
             var cupomExiste = await _cupomRepository.BuscarPorCodigo(cupom.Codigo);
 
             if (cupomExiste != null) return null;
+            if (cupom.DataValidade == DateTime.Now) return null;
 
             var cupomEntidade = new Cupom
             {

@@ -36,6 +36,8 @@ namespace Metalcoin.Core.Dtos.Request
         [Required(ErrorMessage = "Quantidade liberada de cupom é obrigátorio")]
         [Range(1, int.MaxValue, ErrorMessage = "A quantidade liberada deve ser maior que zero")]
         public int QuantidadeLiberada { get; set; }
+        [Required]
+        public TipoStatus Status { get; set; }
 
     }
 }
