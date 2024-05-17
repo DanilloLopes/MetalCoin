@@ -10,6 +10,9 @@ namespace Metalcoin.Core.Dtos.Request
 {
     public class CupomAtualizarRequest
     {
+        [Required(ErrorMessage = "Id do cupom é obrigátorio")]
+        public Guid Id { get; set; }
+
         [Required(ErrorMessage = "Código do cupom é obrigátorio")]
         [MaxLength(25, ErrorMessage = "Categoria pode ter no máximo 15 letras")]
         [MinLength(3, ErrorMessage = "Categoria deve ter no mínimo 5 letras")]

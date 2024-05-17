@@ -38,18 +38,18 @@ namespace MetalCoin.Api.Controllers
 
         #region HTTP POST
 
-        //[HttpPost]
-        //[Route("cupons/cadastrar")]
-        //public async Task<ActionResult> CadastrarCupom([FromBody] CupomCadastrarRequest categoria)
-        //{
-        //    if (categoria == null) return BadRequest("Informe o nome da categoria");
+        [HttpPost]
+        [Route("cupons/cadastrar")]
+        public async Task<ActionResult> CadastrarCupom([FromBody] CupomCadastrarRequest categoria)
+        {
+            if (categoria == null) return BadRequest("Informe o nome da categoria");
 
-        //    var response = await _categoriaService.CadastrarCategoria(categoria);
+            var response = await _categoriaService.CadastrarCategoria(categoria);
 
-        //    if (response == null) return BadRequest("Categoria já existe");
+            if (response == null) return BadRequest("Categoria já existe");
 
-        //    return Created("cadastrar", response);
-        //}
+            return Created("cadastrar", response);
+        }
 
         #endregion
     }
