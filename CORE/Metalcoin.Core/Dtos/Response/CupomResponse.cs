@@ -20,5 +20,11 @@ namespace Metalcoin.Core.Dtos.Response
         public TipoStatus Status { get; set; }
         public DateTime DataCadastro { get; set; }
         public DateTime DataAlteracao { get; set; }
+        public string ErroMensage { get; set; }
+
+        public CupomResponse()
+        {
+            ErroMensage = null;
+        }
     }
 }

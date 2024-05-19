@@ -22,6 +22,18 @@ namespace MetalCoin.Application.Services
         }
         public async Task<CupomResponse> AtualizarCupom(CupomAtualizarRequest cupom)
         {
+            var responseErroCodigo = await ResponseErroCodigo(cupom.Codigo);
+            if (responseErroCodigo.ErroMensage != null)
+            {
+                return responseErroCodigo;
+            }
+
+            var responseErroValidade = ResponseErroValidade(cupom.DataValidade);
+            if (responseErroValidade.ErroMensage != null)
+            {
+                return responseErroValidade;
+            }
+
             var cupomDb = await _cupomRepository.ObterPorId(cupom.Id);
 
             cupomDb.Codigo = cupom.Codigo;
@@ -51,19 +63,26 @@ namespace MetalCoin.Application.Services
             };
 
             return response;
-            
-            
-            
+
         }
 
         public async Task<CupomResponse> CadastrarCupom(CupomCadastrarRequest cupom)
         {
-            var cupomExiste = await _cupomRepository.BuscarPorCodigo(cupom.Codigo);
 
-            if (cupomExiste != null) return null;
-            if (cupom.DataValidade == DateTime.Now) return null;
+            var responseErroCodigo = await ResponseErroCodigo(cupom.Codigo);
+            if (responseErroCodigo.ErroMensage != null)
+            {
+                return responseErroCodigo;
+            }
 
-            var cupomEntidade = new Cupom
+            var responseErroValidade = ResponseErroValidade(cupom.DataValidade);
+            if (responseErroValidade.ErroMensage != null)
+            {
+                return responseErroValidade;
+            }
+           
+            
+            var cupomDb = new Cupom
             {
                 Codigo = cupom.Codigo,
                 Descricao = cupom.Descricao,
@@ -77,20 +96,21 @@ namespace MetalCoin.Application.Services
                 DataAlteracao = DateTime.Now
             };
 
-            await _cupomRepository.Adicionar(cupomEntidade);
+            await _cupomRepository.Adicionar(cupomDb);
 
             var response = new CupomResponse
             {
-                Id = cupomEntidade.Id,
-                Descricao = cupomEntidade.Descricao,
-                ValorDesconto = cupomEntidade.ValorDesconto,
-                TipoDesconto = cupomEntidade.TipoDesconto,
-                DataValidade = cupomEntidade.DataValidade,
-                QuantidadeLiberada = cupomEntidade.QuantidadeLiberada,
-                QuantidadeUsada = cupomEntidade.QuantidadeUsada,
-                Status = cupomEntidade.Status,
-                DataCadastro = cupomEntidade.DataCadastro,
-                DataAlteracao = cupomEntidade.DataAlteracao
+                Id = cupomDb.Id,
+                Codigo = cupomDb.Codigo,
+                Descricao = cupomDb.Descricao,
+                ValorDesconto = cupomDb.ValorDesconto,
+                TipoDesconto = cupomDb.TipoDesconto,
+                DataValidade = cupomDb.DataValidade,
+                QuantidadeLiberada = cupomDb.QuantidadeLiberada,
+                QuantidadeUsada = cupomDb.QuantidadeUsada,
+                Status = cupomDb.Status,
+                DataCadastro = cupomDb.DataCadastro,
+                DataAlteracao = cupomDb.DataAlteracao
             };
 
             return response;
@@ -100,6 +120,29 @@ namespace MetalCoin.Application.Services
         public async Task<bool> DeletarCategoria(Guid id)
         {
             throw new NotImplementedException();
+        }
+
+        private CupomResponse ResponseErroValidade(DateTime data)
+        {
+            var response = new CupomResponse();
+            if (data <= DateTime.Now)
+            {
+                response.ErroMensage = "Data de valida do cupom inválida.";
+            }
+            return response;
+        }
+
+        private async Task<CupomResponse> ResponseErroCodigo(string codigo)
+        {
+            var cupomExiste = await _cupomRepository.BuscarPorCodigo(codigo);
+
+            var response = new CupomResponse();
+            if (cupomExiste != null)
+            {
+                response.ErroMensage = "Cupom já registrado.";
+            }
+            
+            return response;
         }
     }
 }

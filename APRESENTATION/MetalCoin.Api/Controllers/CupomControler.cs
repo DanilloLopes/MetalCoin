@@ -47,14 +47,23 @@ namespace MetalCoin.Api.Controllers
 
             var response = await _cupomService.CadastrarCupom(cupom);
 
-            if (response == null) return BadRequest("Erro nos dados!");
+            if (response.ErroMensage != null) return BadRequest(response.ErroMensage);
 
             return Created("cadastrar", response);
         }
 
+        [HttpGet]
+        [Route("cupons/{id:guid}")]
+        public async Task<ActionResult> ObterUmCupom(Guid id)
+        {
+            var cupom = await _cupomRepository.ObterPorId(id);
+            if (cupom == null) return BadRequest("Categoria não encontrada");
+            return Ok(cupom);
+        }
+
         #endregion
 
-        #region HTTP POST
+        #region HTTP PUT
 
         [HttpPut]
         [Route("cupons/atualizar")]
@@ -64,6 +73,7 @@ namespace MetalCoin.Api.Controllers
 
             var response = await _cupomService.AtualizarCupom(cupom);
 
+            if (response.ErroMensage != null) return BadRequest(response.ErroMensage);
             return Ok(response);
         }
 
