@@ -58,6 +58,7 @@ namespace MetalCoin.Api.Controllers
         {
             var cupom = await _cupomRepository.ObterPorId(id);
             if (cupom == null) return BadRequest("Categoria não encontrada");
+
             return Ok(cupom);
         }
 

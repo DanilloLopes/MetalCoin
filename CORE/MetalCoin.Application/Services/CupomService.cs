@@ -23,7 +23,7 @@ namespace MetalCoin.Application.Services
         public async Task<CupomResponse> AtualizarCupom(CupomAtualizarRequest cupom)
         {
             var responseErroCodigo = await ResponseErroCodigo(cupom.Codigo);
-            if (responseErroCodigo.ErroMensage != null)
+            if (responseErroCodigo.ErroMensage != null && responseErroCodigo.Id == cupom.Id)
             {
                 return responseErroCodigo;
             }
@@ -139,6 +139,7 @@ namespace MetalCoin.Application.Services
             var response = new CupomResponse();
             if (cupomExiste != null)
             {
+                response.Id = cupomExiste.Id;
                 response.ErroMensage = "Cupom já registrado.";
             }
             
