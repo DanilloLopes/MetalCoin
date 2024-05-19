@@ -117,9 +117,27 @@ namespace MetalCoin.Application.Services
 
         }
 
-        public async Task<bool> DeletarCategoria(Guid id)
+        public async Task<CupomResponse> DeletarCategoria(Guid id)
         {
-            throw new NotImplementedException();
+
+            var cupomDb = await _cupomRepository.ObterPorId(id);
+            var response = new CupomResponse();
+            if (cupomDb == null)
+            {
+                response.ErroMensage = "Cupom não existe.";
+                return response;
+            }
+
+            if (cupomDb.QuantidadeUsada != 0)
+            {
+                response.ErroMensage = "Existem pedidos utilizando este cupom. Operação de exclusão cancelada.";
+                return response;
+            }
+            
+
+
+            await _cupomRepository.Remover(id);
+            return response;
         }
 
         private CupomResponse ResponseErroValidade(DateTime data)
@@ -127,7 +145,7 @@ namespace MetalCoin.Application.Services
             var response = new CupomResponse();
             if (data <= DateTime.Now)
             {
-                response.ErroMensage = "Data de valida do cupom inválida.";
+                response.ErroMensage = "Data de valida do cupom inválida. Adicione uma data maior do que a data atual.";
             }
             return response;
         }
@@ -140,7 +158,7 @@ namespace MetalCoin.Application.Services
             if (cupomExiste != null)
             {
                 response.Id = cupomExiste.Id;
-                response.ErroMensage = "Cupom já registrado.";
+                response.ErroMensage = "Código de cupom já registrado.";
             }
             
             return response;

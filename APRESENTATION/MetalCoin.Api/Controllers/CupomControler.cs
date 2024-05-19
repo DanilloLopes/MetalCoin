@@ -52,15 +52,6 @@ namespace MetalCoin.Api.Controllers
             return Created("cadastrar", response);
         }
 
-        [HttpGet]
-        [Route("cupons/{id:guid}")]
-        public async Task<ActionResult> ObterUmCupom(Guid id)
-        {
-            var cupom = await _cupomRepository.ObterPorId(id);
-            if (cupom == null) return BadRequest("Categoria não encontrada");
-
-            return Ok(cupom);
-        }
 
         #endregion
 
@@ -76,6 +67,39 @@ namespace MetalCoin.Api.Controllers
 
             if (response.ErroMensage != null) return BadRequest(response.ErroMensage);
             return Ok(response);
+        }
+
+        #endregion
+
+        #region HTTP DELETE
+
+        [HttpDelete]
+        [Route("cupons/deletar/{id:guid}")]
+        public async Task<ActionResult> RemoverCupom(Guid id)
+        {
+            if (id == Guid.Empty) return BadRequest("Id não informado");
+
+            var response = await _cupomService.DeletarCategoria(id);
+
+            if (response.ErroMensage != null) return BadRequest(response.ErroMensage);
+
+            return Ok("Categoria deletada com sucesso");
+        }
+        #endregion
+
+        #region HTTP PATCH
+
+        [HttpPatch]
+        [Route("cupons/Ativar/{id:guid}")]
+        public async Task<ActionResult> AtivarCupom(Guid id)
+        {
+            if (id == Guid.Empty) return BadRequest("Id não informado");
+
+            var response = await _cupomService.DeletarCategoria(id);
+
+            if (response.ErroMensage != null) return BadRequest(response.ErroMensage);
+
+            return Ok("Categoria deletada com sucesso");
         }
 
         #endregion
