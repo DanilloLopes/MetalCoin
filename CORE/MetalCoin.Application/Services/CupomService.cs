@@ -1,18 +1,12 @@
 ﻿using Metalcoin.Core.Domain;
 using Metalcoin.Core.Dtos.Request;
 using Metalcoin.Core.Dtos.Response;
-using Metalcoin.Core.Enums;
 using Metalcoin.Core.Interfaces.Repositories;
 using Metalcoin.Core.Interfaces.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MetalCoin.Application.Services
 {
-    
+
     public class CupomService : ICupomService
     {
         private readonly ICupomRepository _cupomRepository;
@@ -22,20 +16,27 @@ namespace MetalCoin.Application.Services
         }
         public async Task<CupomResponse> AtualizarCupom(CupomAtualizarRequest cupom)
         {
-            var responseErroCodigo = await ResponseErroCodigo(cupom.Codigo);
-            if (responseErroCodigo.ErroMensage != null && responseErroCodigo.Id == cupom.Id)
-            {
-                return responseErroCodigo;
-            }
+            AtualizarBanco();
 
             var responseErroValidade = ResponseErroValidade(cupom.DataValidade);
             if (responseErroValidade.ErroMensage != null)
             {
                 return responseErroValidade;
             }
+            
+            var responseErroCupom = await ResponseErroCupom(cupom.Id);
+            if (responseErroCupom.ErroMensage != null)
+            {
+                return responseErroCupom;
+            }
+
+            var responseErroCodigo = await ResponseErroCodigo(cupom.Codigo);
+            if (responseErroCodigo.ErroMensage != null && responseErroCodigo.Id != cupom.Id)
+            {
+                return responseErroCodigo;
+            }
 
             var cupomDb = await _cupomRepository.ObterPorId(cupom.Id);
-
             cupomDb.Codigo = cupom.Codigo;
             cupomDb.Descricao = cupom.Descricao;
             cupomDb.ValorDesconto = cupom.ValorDesconto;
@@ -68,7 +69,6 @@ namespace MetalCoin.Application.Services
 
         public async Task<CupomResponse> CadastrarCupom(CupomCadastrarRequest cupom)
         {
-
             var responseErroCodigo = await ResponseErroCodigo(cupom.Codigo);
             if (responseErroCodigo.ErroMensage != null)
             {
@@ -117,16 +117,18 @@ namespace MetalCoin.Application.Services
 
         }
 
-        public async Task<CupomResponse> DeletarCategoria(Guid id)
+        public async Task<CupomResponse> DeletarCupom(Guid id)
         {
+            var responseErroCupom = await ResponseErroCupom(id);
+            if (responseErroCupom.ErroMensage != null)
+            {
+                return responseErroCupom;
+            }
 
             var cupomDb = await _cupomRepository.ObterPorId(id);
+
             var response = new CupomResponse();
-            if (cupomDb == null)
-            {
-                response.ErroMensage = "Cupom não existe.";
-                return response;
-            }
+
 
             if (cupomDb.QuantidadeUsada != 0)
             {
@@ -135,13 +137,89 @@ namespace MetalCoin.Application.Services
             }
             
 
-
             await _cupomRepository.Remover(id);
+            return response;
+        }
+
+        public async Task<CupomResponse> AtivarCupom(Guid id)
+        {
+            AtualizarBanco();
+            var responseErroCupom = await ResponseErroCupom(id);
+            if (responseErroCupom.ErroMensage != null)
+            {
+                return responseErroCupom;
+            }
+
+            var cupomDb = await _cupomRepository.ObterPorId(id);
+
+            var response = new CupomResponse();
+
+            if(cupomDb.Status == Metalcoin.Core.Enums.TipoStatus.Ativo)
+            {
+                response.ErroMensage = "Cupom já está ativo.";
+                return response;
+            }
+
+            if (cupomDb.Status == Metalcoin.Core.Enums.TipoStatus.Expirado)
+            {
+                response.ErroMensage = "Cupom está expirado, status não pode ser alterado.";
+                return response;
+            }
+
+            if (cupomDb.Status == Metalcoin.Core.Enums.TipoStatus.TotalmenteUtilizado)
+            {
+                response.ErroMensage = "Cupom já foi totalmente utilizado, status não pode ser alterado.";
+                return response;
+            }
+
+            cupomDb.Status = Metalcoin.Core.Enums.TipoStatus.Ativo;
+
+            await _cupomRepository.Atualizar(cupomDb);
+
+            return response;
+        }
+
+        public async Task<CupomResponse> DesativarCupom(Guid id)
+        {
+            AtualizarBanco();
+            var responseErroCupom = await ResponseErroCupom(id);
+            if (responseErroCupom.ErroMensage != null)
+            {
+                return responseErroCupom;
+            }
+
+            var cupomDb = await _cupomRepository.ObterPorId(id);
+
+            var response = new CupomResponse();
+
+            if (cupomDb.Status == Metalcoin.Core.Enums.TipoStatus.Desativado)
+            {
+                response.ErroMensage = "Cupom já está Desativado.";
+                return response;
+            }
+
+            if (cupomDb.Status == Metalcoin.Core.Enums.TipoStatus.Expirado)
+            {
+                response.ErroMensage = "Cupom está expirado, status não pode ser alterado.";
+                return response;
+            }
+
+            if (cupomDb.Status == Metalcoin.Core.Enums.TipoStatus.TotalmenteUtilizado)
+            {
+                response.ErroMensage = "Cupom já foi totalmente utilizado, status não pode ser alterado.";
+                return response;
+            }
+
+            cupomDb.Status = Metalcoin.Core.Enums.TipoStatus.Desativado;
+
+            await _cupomRepository.Atualizar(cupomDb);
+
             return response;
         }
 
         private CupomResponse ResponseErroValidade(DateTime data)
         {
+            AtualizarBanco();
             var response = new CupomResponse();
             if (data <= DateTime.Now)
             {
@@ -152,6 +230,7 @@ namespace MetalCoin.Application.Services
 
         private async Task<CupomResponse> ResponseErroCodigo(string codigo)
         {
+            AtualizarBanco();
             var cupomExiste = await _cupomRepository.BuscarPorCodigo(codigo);
 
             var response = new CupomResponse();
@@ -162,6 +241,26 @@ namespace MetalCoin.Application.Services
             }
             
             return response;
+        }
+
+        private async Task<CupomResponse> ResponseErroCupom(Guid id)
+        {
+            AtualizarBanco();
+            var cupom = await _cupomRepository.ObterPorId(id);
+
+            var response = new CupomResponse();
+            if (cupom == null)
+            {
+                response.ErroMensage = "Cupom não existe.";
+            }
+
+            return response;
+        }
+
+        private async void AtualizarBanco()
+        {
+            await _cupomRepository.AtualizarStatusTotalUtilizado();
+            await _cupomRepository.AtualizarStatusVencido();
         }
     }
 }

@@ -79,7 +79,7 @@ namespace MetalCoin.Api.Controllers
         {
             if (id == Guid.Empty) return BadRequest("Id não informado");
 
-            var response = await _cupomService.DeletarCategoria(id);
+            var response = await _cupomService.DeletarCupom(id);
 
             if (response.ErroMensage != null) return BadRequest(response.ErroMensage);
 
@@ -90,16 +90,27 @@ namespace MetalCoin.Api.Controllers
         #region HTTP PATCH
 
         [HttpPatch]
-        [Route("cupons/Ativar/{id:guid}")]
+        [Route("cupons/ativar/{id:guid}")]
         public async Task<ActionResult> AtivarCupom(Guid id)
         {
-            if (id == Guid.Empty) return BadRequest("Id não informado");
 
-            var response = await _cupomService.DeletarCategoria(id);
+            var response = await _cupomService.AtivarCupom(id);
 
             if (response.ErroMensage != null) return BadRequest(response.ErroMensage);
 
-            return Ok("Categoria deletada com sucesso");
+            return Ok("Categoria ativada com sucesso");
+        }
+
+        [HttpPatch]
+        [Route("cupons/desativar/{id:guid}")]
+        public async Task<ActionResult> DesativarCupom(Guid id)
+        {
+
+            var response = await _cupomService.DesativarCupom(id);
+
+            if (response.ErroMensage != null) return BadRequest(response.ErroMensage);
+
+            return Ok("Categoria desativada com sucesso");
         }
 
         #endregion

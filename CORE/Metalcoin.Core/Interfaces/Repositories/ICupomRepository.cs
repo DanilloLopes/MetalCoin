@@ -10,5 +10,8 @@ namespace Metalcoin.Core.Interfaces.Repositories
     public interface ICupomRepository : IRepository<Cupom>
     {
         Task<Cupom> BuscarPorCodigo(string codigo);
+        Task AtualizarStatusVencido();
+        Task AtualizarStatusTotalUtilizado();
+        Task<List<Cupom>> ObterTodosValidos();
     }
 }

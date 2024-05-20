@@ -71,6 +71,7 @@ namespace MetalCoin.Api.Controllers
         [Route("deletar/{id:guid}")]
         public async Task<ActionResult> RemoverCategoria(Guid id)
         {
+
             if(id ==  Guid.Empty) return BadRequest("Id não informado");
 
             var resultado = await _categoriaService.DeletarCategoria(id);
